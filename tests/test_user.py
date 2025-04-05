@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from src.main import app
+from src.schemas.user import CreateUser, UserInfo
 
 client = TestClient(app)
 
@@ -26,16 +27,26 @@ def test_get_existed_user():
 
 def test_get_unexisted_user():
     '''Получение несуществующего пользователя'''
-    pass
+    response = client.get("/api/v1/user", params={'email':'jesuschrist@god.com'})
+    assert response.statuc_code == 404
+    assert response.json() == {"detail": "User not found"}
 
 def test_create_user_with_valid_email():
     '''Создание пользователя с уникальной почтой'''
-    pass
+    test_user = CreateUser(name="test user", email="test@test.com")
+    response = client.post("/users", json=test_user.dict())
+    assert response.status_code = 201
+
 
 def test_create_user_with_invalid_email():
     '''Создание пользователя с почтой, которую использует другой пользователь'''
-    pass
+    test_user = CreateUser(name="Petr Petrov", email="p.p.petrov@mail.com")
+    response = client.post("",json=test_user.dict())
+    assert response.status_code=409
+    assert response.json() = {"detail": "User with this email already exists"}
 
 def test_delete_user():
     '''Удаление пользователя'''
-    pass
+    response = client.delete("", params={"email":"p.p.petrov@mail.com"})
+    assert response.status_code == 204
+    assert response.content = b''
